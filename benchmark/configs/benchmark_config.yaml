@@ -1,0 +1,73 @@
+# Benchmark配置文件（优化版）
+# 数据集配置
+dataset:
+  path: datasets/Defect detection of wind turbine blades/data.yaml
+  nc: 2
+  names: ['defect', 'normal']
+
+# 通用训练配置
+train:
+  epochs: 200
+  imgsz: 960
+  batch: 16
+  device: '0'
+  workers: 0
+  patience: 50
+  project: runs/detect/benchmark
+  save: true
+  plots: true
+
+# 模型配置
+models:
+  yolo11s:
+    model: yolo11s.pt
+    optimizer: auto
+    lr0: 0.01
+    # 已完成训练，使用现有结果
+    existing_results: /home/aiuser/work/ultralytics/runs/detect/wind-turbine-blade/detect_v3
+
+  yolov8s:
+    model: yolov8s.pt
+    optimizer: auto
+    lr0: 0.01
+    epochs: 200
+    imgsz: 960
+    batch: 16
+    device: '0'
+    workers: 0  # 设置为0以减少显存占用
+    patience: 50
+    project: runs/detect/benchmark  # 统一输出到runs/detect下
+    save: true
+    plots: true
+    # 已完成训练，使用现有结果
+    existing_results: /home/aiuser/work/ultralytics/runs/detect/wind-turbine-blade/benchmark/yolov8s_exp3
+
+  rtdetr_l:
+    model: rtdetr-l.pt
+    optimizer: AdamW
+    lr0: 0.0001
+    epochs: 200
+    imgsz: 960
+    batch: 4  # RT-DETR显存占用较大，降低batch size以适配12GB显存
+    device: '0'
+    workers: 0  # 设置为0以减少显存占用
+    patience: 50
+    project: runs/detect/benchmark  # 统一输出到runs/detect下
+    save: true
+    plots: true
+    name: rtdetr_exp
+
+  faster_rcnn:
+    framework: detectron2
+    # 使用单独的训练脚本: train_faster_rcnn.py
+    # 结果路径: runs/detect/benchmark/faster_rcnn/
+
+# 评估指标
+metrics:
+  - mAP50
+  - mAP50-95
+  - precision
+  - recall
+  - speed_inference
+  - params
+  - GFLOPs
